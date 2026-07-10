@@ -1,0 +1,11 @@
+<odoo>
+    <menuitem id="l_sale_order_menu_root" name="测试主菜单" sequence="1"/>
+
+    <menuitem id="l_sale_order_menu"
+              name="测试二级菜单"
+              sequence="1"
+              parent="l_sale_order_menu_root"
+              action="l_sale_order_act_window"
+              />
+
+</odoo>
