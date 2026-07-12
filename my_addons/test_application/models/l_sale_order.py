@@ -3,9 +3,14 @@ from odoo import api,models,fields
 class LSaleOrder(models.Model):
     _name ="l.sale.order"
     _description = "销售订单"
+    # _order是排序功能，以name为基准
+    _order = "sequence"
+
 
     name =fields.Char(string="订单编号",help="这是我的订单编号"
-                        # ,readonly=1
+                    ,readonly=0
+                    ,compute="_compute_name"
+                    ,store=True
                       )
     note = fields.Text(string="备注", help="这是我的备注"
                         # ,required=1
@@ -26,3 +31,14 @@ class LSaleOrder(models.Model):
                               default=fields.Datetime.now())
     image =fields.Image(string="图片",help="这是我的图片")
     binary = fields.Binary(string="二进制",help="这是我的二进制")
+
+    # 加了api.depends装饰器后，只有当note字段发生变化时，
+    # 触发_compute_name方法的执行，从而提高了性能。
+    @api.depends('note')
+    def _compute_name(self):
+        print(self)
+        for record in self:
+            if record.note:
+                record.name = f"{record.note}/{record.id}"
+            else:
+                record.name = "未确认"

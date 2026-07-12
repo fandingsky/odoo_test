@@ -9,7 +9,10 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="note" widget='html'/>
+                        <field name="note" style="height: 100px;"/>
+<!--                        html会将文本中的html标签渲染出来，显示为html格式，而不是文本格式。-->
+<!--                               widget='html'-->
+
                         <field name="sequence"/>
                         <field name="qty"/>
                         <field name="is_bool"/>                                                                           ame="is_bool"/>
@@ -42,6 +45,8 @@
         <field name="model">l.sale.order</field>
         <field name="arch" type="xml">
             <list>
+<!--                这里是sequence的排序功能-->
+                <field name="sequence"/>
                 <field name="name"/>
             </list>
         </field>
