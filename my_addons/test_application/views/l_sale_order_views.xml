@@ -7,33 +7,23 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <group>
-                        <field name="name"/>
-                        <field name="note" style="height: 100px;"/>
-<!--                        html会将文本中的html标签渲染出来，显示为html格式，而不是文本格式。-->
-<!--                               widget='html'-->
-
-                        <field name="sequence"/>
-                        <field name="qty"/>
-                        <field name="is_bool"/>                                                                           ame="is_bool"/>
-                        <field name="state"/>                                                                           ame="is_bool"/>
-                        <field name="date_01"/>                                                                           ame="is_bool"/>
-                        <field name="date_02"/>                                                                           ame="is_bool"/>
-                        <field name="create_uid"/>
-                        <field name="create_date"/>
-                        <field name="write_uid"/>
-                        <field name="write_date"/>
-                    </group>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
                     <group>
                         <group>
-                            <field name="image"/>
+                            <field name="partner_id"/>
+                            <field name="state"/>
                         </group>
                         <group>
-                            <field name="binary"/>
+                            <field name="validate_date"/>
+                            <field name="payment_type"/>
                         </group>
                     </group>
 
-
+                    <group>
+                        <field name="note" nolabel="1"/>
+                    </group>
                 </sheet>
             </form>
         </field>
@@ -45,9 +35,11 @@
         <field name="model">l.sale.order</field>
         <field name="arch" type="xml">
             <list>
-<!--                这里是sequence的排序功能-->
-                <field name="sequence"/>
                 <field name="name"/>
+                <field name="partner_id"/>
+                <field name="validate_date"/>
+                <field name="payment_type"/>
+                <field name="state"/>
             </list>
         </field>
     </record>

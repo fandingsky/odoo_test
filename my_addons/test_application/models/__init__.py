@@ -1,1 +1,1 @@
-from . import l_sale_order
+from . import l_sale_order,l_sale_order_line
