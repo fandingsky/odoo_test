@@ -24,6 +24,36 @@
                     <group>
                         <field name="note" nolabel="1"/>
                     </group>
+                    <notebook>
+                        <page string="明细行">
+                            <field name="line_ids">
+<!--                                使提交表单在当前notebook之中而不是新开一个form表单-->
+<!--                                如果是bottom那么每次都添加在最底下，如果是top那就是每次添加在最顶上-->
+<!--                                create="False"那么就不可创建，反之可以，delete同理-->
+                                <list editable="bottom" create="true" delete="true">
+                                    <field name="name" column_invisible="1"/>
+                                    <field name="product_id"/>
+                                    <field name="qty"/>
+                                    <field name="price_unit"/>
+                                    <field name="amount_total"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="name"/>
+                                            <field name="product_id"/>
+                                            <field name="qty"/>
+                                        </group>
+                                        <group>
+                                            <field name="qty"/>
+                                            <field name="price_unit"/>
+                                            <field name="amount_total"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
