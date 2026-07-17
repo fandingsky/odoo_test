@@ -37,6 +37,13 @@
                                     <field name="price_unit"/>
                                     <field name="tax_ids" widget="many2many_tax_tags"/>
                                     <field name="amount_total"/>
+<!--                                    <button name="button_add" type="object" string="增加many2many"/>-->
+<!--                                    <button name="button_link" type="object" string="增加已有的字段many2many"/>-->
+<!--                                    <button name="button_update" type="object" string="更新已有的many2many"/>-->
+                                    <button name="button_updateall" type="object" string="更新所有已有的many2many"/>
+<!--                                    <button name="button_delete" type="object" string="删除数据库已有的many2many"/>-->
+<!--                                    <button name="button_unlink" type="object" string="删除与这个表关联的many2many"/>-->
+<!--                                    <button name="button_unlinkall" type="object" string="删除与这个表关联的many2many"/>-->
                                 </list>
                                 <form>
                                     <group>

@@ -25,3 +25,87 @@ class LSaleOrderLine(models.Model):
     tax_ids = fields.Many2many('account.tax', 'l_sale_order_line_account_tax_rel',
                                'l_sale_order_line','account_tax_id'
                                ,string="税项")
+
+    def button_add(self):
+        """
+        来操作tax_ids字段，添加一个字段
+        (0,0,{'name':'21%','amount':21.0})表示添加一个新的记录
+        (1,tax.id,{'name':'21%','amount':21.0})表示更新已有的记录
+        (2,tax.id,0)表示删除已有的记录,这里0为占位符号
+        (4,tax.id)表示关联已有的记录
+        (3,tax.id)表示解除关联已有的记录
+        (5,)表示删除所有关联的记录
+        """
+        print(self.tax_ids)
+        self.tax_ids = [(0,0,{'name':'21%','amount':21.0})]
+
+        # 一次性添加多个字段的写法，适用于下面的其他方法
+        # self.tax_ids = [(0,0,{'name':'21%','amount':21.0}),(0,0,{'name':'4%','amount':4.0})]
+
+    def button_link(self):
+        """
+        来操作tax_ids字段,添加关联的已有字段
+        """
+        print(self.tax_ids)
+        self.tax_ids = [(4,6,0),(4,1,0)]
+
+        # 因为在表中tax_ids并没有关联到这个所以并不能用下面的方式写
+        # for tax in self.tax_ids:
+        #     if tax.name == '21%':
+        #         self.tax_ids = [(4,tax.id,0)]
+
+
+    def button_update(self):
+        """
+        来操作tax_ids字段,更新已有字段
+        """
+        print(self.tax_ids)
+
+        for tax in self.tax_ids:
+            if tax.name == '4%':
+                self.tax_ids = [(1,tax.id, {'name': '21%', 'amount': 21.0})]
+
+    def button_updateall(self):
+        """
+        来操作tax_ids字段,更新所有已有字段
+        本质上是把一个删除全部关联功能和一个添加关联功能放在一起操作
+        self.tax_ids[(6,0,[id1,id2])]
+        id1和id2是税率的对应id
+        一般来说这个使用的场所最多
+        """
+        print(self.tax_ids)
+        self.tax_ids = [(6,0,[1,3,6])]
+
+
+    def button_delete(self):
+        """
+        删除，但是是所有数据库里的都删除了，所以很少用这种
+        基本上都是用(3,id,0)的从关系中一处
+        """
+        print(self.tax_ids)
+
+        for tax in self.tax_ids:
+            if tax.name == '21%':
+                self.tax_ids = [(2,tax.id,0)]
+
+    def button_unlink(self):
+        """
+        来操作tax_ids字段,删除关联的已有字段
+        """
+        print(self.tax_ids)
+
+        for tax in self.tax_ids:
+            if tax.name == '21%':
+                self.tax_ids = [(3,tax.id,0)]
+
+
+    def button_unlinkall(self):
+        """
+        来操作tax_ids字段,清空所有关联的已有字段
+        """
+        print(self.tax_ids)
+        self.tax_ids = [(5,0,0)]
+
+#         如果把Command添加进来也可以写为
+#         self.tax_ids = [Command.clear]
+
