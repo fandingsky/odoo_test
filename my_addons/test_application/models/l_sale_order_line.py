@@ -10,7 +10,11 @@ class LSaleOrderLine(models.Model):
     # 这里product是product模型里的一个字段，product.product是模型的名字
     # 因此需要在manifest文件里去依赖product模块
     product_id = fields.Many2one('product.product', string="产品", help="这是我的产品")
-    order_id = fields.Many2one('l.sale.order', string="订单", help="这是我的订单")
+    order_id = fields.Many2one('l.sale.order', string="订单", help="这是我的订单",
+    # 这里ondelete="cascade"表示如果删除了订单，那么订单行也会被删除，这就是级联操作
+    # 如果是ondelete="restrict"的话，如果有外键就无法删除，如果没有就可以删除
+                               ondelete="restrict"
+                               )
 
     # flout类型的字段，dights是小数点后几位,Product Unit是产品单价单位的意思，在odoo的设置里调整
     # price_unit = fields.Float(string="单价", help="这是我的单价", digits=2)在19.0版本中已经不支持了，必须使用digits='Product Unit'，否则会报错
