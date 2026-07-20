@@ -8,4 +8,9 @@
               action="l_sale_order_act_window"
               />
 
+    <menuitem id="l_url_test" name="测试跳转功能" sequence="1"
+              parent="l_sale_order_menu"
+              action="l_odoo_url_action"
+              />
+
 </odoo>

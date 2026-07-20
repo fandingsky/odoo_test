@@ -37,3 +37,19 @@
         #继承多个模型的特性
 
         new_field = fields.Char(string='Combined Field')
+
+模型的约束与数据校验
+1.模型约束：
+    _sql_constraints = [
+        ('unique_barcode', #约束名称
+        'unique(barcode)', #sql的约束表达式
+        '订单条码不能重复' #错误提示
+    ]
+    odoo19之后就不用使用_sql_constraints了，
+    推荐使用python的constraint装饰器来实现数据校验
+    @api.constrains('field1', 'field2')
+    def constraint_barcode(self):
+        if record == self:
+            domain = [('barcode','=',record.barcode),('id','!=',record.id)]
+            if self.search[domain,limit=1]:
+                raise ValidationError('订单条码不能重复')

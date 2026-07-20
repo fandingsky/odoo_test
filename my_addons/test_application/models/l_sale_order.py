@@ -1,4 +1,6 @@
 from odoo import api,models,fields
+from odoo.exceptions import ValidationError
+
 
 class LSaleOrder(models.Model):
     _name ="l.sale.order"
@@ -26,6 +28,7 @@ class LSaleOrder(models.Model):
     # 必须对应
     note = fields.Html(string="备注",help="这是我的备注")
     state =fields.Selection([('draft','草稿'),('confirm','已确认'),('done','已完成')],string="状态",help="这是我的状态",default='draft')
+    barcode = fields.Char(string="订单条码")
 
     # 加了api.depends装饰器后，只有当note字段发生变化时，
     # 触发_compute_name方法的执行，从而提高了性能。
@@ -37,3 +40,10 @@ class LSaleOrder(models.Model):
     #             record.name = f"{record.note}/{record.id}"
     #         else:
     #             record.name = "未确认"
+
+    @api.constrains('barcode')
+    def constraint_barcode(self):
+        for record in self:
+            domain = [('barcode', '=', record.barcode), ('id', '!=', record.id)]
+            if self.search(domain, limit=1):
+                raise ValidationError('订单条码不能重复')
