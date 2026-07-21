@@ -18,7 +18,8 @@ class LSaleOrder(models.Model):
 
     name =fields.Char(string="订单编号",help="这是我的订单编号"
                     ,compute="_compute_name"
-                    # ,store=True
+                    ,store=True
+                    ,readonly=False
                       )
     validate_date = fields.Datetime(string="有效期",help="这是我的确认时间",default=fields.Date.today())
     payment_type = fields.Selection([('v_1','立即付款'),('v_2','7天'),('v_3','15天'),('v_4','30天')],string="付款方式",help="这是我的付款方式",default='v_1')

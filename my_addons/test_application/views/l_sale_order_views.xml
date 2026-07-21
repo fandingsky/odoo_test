@@ -83,6 +83,26 @@
         </field>
     </record>
 
+    <record id="l_sale_order_search_view" model="ir.ui.view">
+        <field name="name">l.sale.order.search.view</field>
+        <field name="model">l.sale.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="订单号"
+                       filter_domain="[('name','ilike',self)]"/>
+                <field name="partner_id" string="客户"/>
+                <field name="validate_date" string="有效期"/>
+                <field name="payment_type" string="付款方式"/>
+                <field name="state" string="状态"/>
+                <separator/>
+                <filter string="草稿" name="draft" domain="[('state','like','draft')]"/>
+                <filter string="已确认" name="confirm" domain="[('state','like','confirm')]"/>
+                <filter string="已完成" name="done" domain="[('state','like','done')]"/>
+            </search>
+        </field>
+    </record>
+
+
     <record id="l_sale_order_act_window" model="ir.actions.act_window">
         <field name="name">我的测试单据</field>
         <field name="res_model">l.sale.order</field>

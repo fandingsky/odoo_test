@@ -20,7 +20,7 @@ class LSaleOrderLine(models.Model):
     # price_unit = fields.Float(string="单价", help="这是我的单价", digits=2)在19.0版本中已经不支持了，必须使用digits='Product Unit'，否则会报错
     # price_unit = fields.Float(string="单价", help="这是我的单价", digits=(16,2)),digits=(最大值,小数点后的值)
     price_unit = fields.Float(string="单价", help="这是我的单价",digits='Product Unit')
-    amount_total = fields.Float(string="总价", digits=(16,2))
+    amount_total = fields.Float(string="总价", digits=(16,2),compute="compute_total",store="True")
     qty = fields.Float(string="数量", digits='Product Unit')
 
     # 这里第二个因素是relation，第三个因素是column1，第四个因素是column2，第五个因素是string
@@ -113,3 +113,6 @@ class LSaleOrderLine(models.Model):
 #         如果把Command添加进来也可以写为
 #         self.tax_ids = [Command.clear]
 
+    @api.depends('price_unit','qty')
+    def compute_total(self):
+        self.amount_total=self.price_unit * self.qty
