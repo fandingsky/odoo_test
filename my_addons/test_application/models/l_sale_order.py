@@ -48,3 +48,44 @@ class LSaleOrder(models.Model):
             domain = [('barcode', '=', record.barcode), ('id', '!=', record.id)]
             if self.search(domain, limit=1):
                 raise ValidationError('订单条码不能重复')
+
+
+
+    # 回到上一页的办法，不知为何act_window_close无法使用
+    # 下面这个强制定向方法也无法使用
+    # return {
+    #     'type': 'ir.actions.act_window',
+    #     'name': '订单列表',
+    #     'res_model': 'l.sale.order',
+    #     'view_mode': 'list',
+    #     'target': 'main',
+    # }
+    def go_back(self):
+        # 这里env是环境变量，env.context是环境变量的上下文，env.context.get()是获取上下文变量的值
+        previous_action = self.env.context.get('previous_action_id')
+        if previous_action:
+            # 这里是通过xml_id获取动作，fore_xml_id是获取xml_id对应的动作
+            return self.env['ir.actions.act_window']._for_xml_id(previous_action)
+        else:
+            # 这里是默认的跳转，跳转到订单列表
+            return self.env['ir.actions.act_window']._for_xml_id('test_application.l_sale_order_act_window')
+
+
+    # 通过按钮对state进行修改
+    def state_to_confirm(self):
+        self.write({'state':'confirm'})
+
+    def state_to_draft(self):
+        self.write({'state': 'draft'})
+
+    def state_to_done(self):
+        self.write({'state': 'done'})
+
+    def delete_order(self):
+        # 先删除关联的订单行（因为 ondelete='restrict' 会阻止级联删除）
+        self.line_ids.unlink()
+        # 再删除当前订单
+        self.unlink()
+        # 返回订单列表视图，避免留在已删除的页面
+        return self.go_back()
+

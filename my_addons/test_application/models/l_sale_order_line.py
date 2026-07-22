@@ -29,7 +29,6 @@ class LSaleOrderLine(models.Model):
     tax_ids = fields.Many2many('account.tax', 'l_sale_order_line_account_tax_rel',
                                'l_sale_order_line','account_tax_id'
                                ,string="税项")
-
     def button_add(self):
         """
         来操作tax_ids字段，添加一个字段

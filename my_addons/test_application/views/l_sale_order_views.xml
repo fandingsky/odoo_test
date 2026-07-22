@@ -6,6 +6,15 @@
         <field name="model">l.sale.order</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="go_back" string="返回上一页" type="object"/>
+                    <button name="state_to_draft" string="起草中" type="object"/>
+                    <button name="state_to_confirm" string="确认" type="object"/>
+                    <button name="state_to_done" string="完成" type="object"/>
+                    <button name="delete_order" string="删除" type="object" confirm="确定要删除该订单吗"/>
+                    <field name="state" widget="statusbar"/>
+<!--                    statubar默认在flex布局的最右边-->
+                </header>
                 <sheet>
                         <h1>
                             <field name="name"/>
@@ -61,6 +70,11 @@
                                     </group>
                                 </form>
                             </field>
+                        </page>
+                        <page string="other">
+                                <group>
+                                    <field name="note"/>
+                                </group>
                         </page>
                     </notebook>
                 </sheet>
