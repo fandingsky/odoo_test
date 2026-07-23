@@ -40,6 +40,7 @@
 
 # 模型的约束与数据校验
 1.模型约束：
+
     _sql_constraints = [
         ('unique_barcode', #约束名称
         'unique(barcode)', #sql的约束表达式
@@ -54,6 +55,18 @@
             if self.search[domain,limit=1]:
                 raise ValidationError('订单条码不能重复')
 
+    -------------------------------------------------------------------------
+
+下面的这个也可以做到
+
+    _check_price_unit_positive = models.Constraint(
+    
+    #这里的 "CHECK(price_unit >= 0)" 就是约束的 定义（definition），它是一个 SQL 表达式，会被原样放进数据库的 CHECK 约束中。
+        "CHECK(price_unit >= 0)",
+    
+    #这里是message字段，报错的时候显示的错误信息
+        "单价必须大于0",
+    )
 
 # 搜索方面：
 精确匹配
@@ -75,8 +88,9 @@
 [('date', 'between', [self1, self2])] # 在日期范围内
 
 
-# 页面操作
+# 页面操作（7.22）
 1.返回页面：
+
     def go_back(self):
         # 这里env是环境变量，env.context是环境变量的上下文，env.context.get()是获取上下文变量的值
         previous_action = self.env.context.get('previous_action_id')
@@ -90,11 +104,13 @@
 逻辑上是获取上一个动作，然后跳转到上一个动作实现之前的操作
 
 不知道为什么actions_window_close无法使用,然后
- return {
+
+    return {
          'type': 'ir.actions.act_window',
          'name': '订单列表',
          'res_model': 'l.sale.order',
          'view_mode': 'list',
          'target': 'main',
      }
+
 强制跳转到主页面也无法使用，打开开发者测试之后在其中开发模块中，明明能搜到这个模块

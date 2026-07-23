@@ -6,6 +6,16 @@ class LSaleOrderLine(models.Model):
     _description = "销售订单行"
     _order = "product_id desc "
 
+    _check_price_unit_positive = models.Constraint(
+        "CHECK(price_unit >= 0)",
+        "单价必须大于0",
+    )
+
+    _check_qty_positive = models.Constraint(
+        "CHECK(qty >= 0)",
+        "数量必须大于0",
+    )
+
     name = fields.Char(string="明细行")
     # 这里product是product模型里的一个字段，product.product是模型的名字
     # 因此需要在manifest文件里去依赖product模块
