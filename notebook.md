@@ -57,7 +57,7 @@
 
     -------------------------------------------------------------------------
 
-下面的这个也可以做到
+下面的这个也可以做到，models.Constraint比传统的 _sql_constraints 更易读，且支持多条件组合
 
     _check_price_unit_positive = models.Constraint(
     
@@ -114,3 +114,55 @@
      }
 
 强制跳转到主页面也无法使用，打开开发者测试之后在其中开发模块中，明明能搜到这个模块
+
+# 小部件(widget)
+1.many2many_tax_tags
+    many2many_tax_tags: many2many_tax_tags小部件用于many2many字段
+        它的作用是把一个多对多字段的显示方式从默认的表格列表，变成标签（tag）样式，
+        类似于你常见的“税项标签”，用户可以直接在输入框里添加或删除标签，操作更直观。
+
+    <field name="tax_ids" widget="many2many_tax_tags"/>
+
+2.widget="res_partner_many2one"
+    res_partner_many2one: res_partner_many2one小部件用于many2one字段
+
+    widget="res_partner_many2one"
+额外提供了一个“卡片预览”功能：当你在输入框里选中一个客户，或者把鼠标悬停在已选客户上时，会弹出一张小卡片，上面显示客户的关键信息（名称、地址、电话、邮箱等），不需要点进表单就能快速查看。
+
+3.default_order=""
+
+    default_order="product_id desc"
+
+写在视图的默认排序
+
+4.widget="handle"
+    
+    <field name="sequence" widget="handle"/>
+如果你拖拽了某一行，数据库中的 sequence 值会被更新，但需要注意的是这个是持久性的，即在关闭窗口后，sequence 值会保存在数据库中。因此，如果你希望在关闭窗口后，sequence 值被重置，你需要在关闭窗口时手动将 sequence 值重置为 0。
+
+5.decoration-{$name}
+    decoration-{$name} 是一种特殊样式，用于在字段上添加颜色装饰。
+    在 <tree> 或 <list> 视图内的 <field> 元素上添加：
+
+    <field name="field_name" decoration-样式名="条件表达式"/>
+
+样式名 可选：info（蓝色）、success（绿色）、warning（橙色）、danger（红色）、muted（灰色+淡化）、bf（加粗）、it（斜体）等。可叠加多个，如 decoration-success decoration-bf。
+条件表达式：任意 Python 布尔表达式，可使用视图内出现的字段名。返回 True 时应用样式。
+
+实例：
+
+    <field name="name" 
+       decoration-info="state == 'draft'"
+       decoration-success="state == 'confirm'"
+       decoration-muted="state == 'done'"/>
+
+6.{'search_default_draft': 1}
+    
+    {'search_default_draft': 1}
+
+这里 search_default_draft 对应你搜索视图里 <filter name="draft" ...> 的 name
+search_default_ 后面必须完全匹配过滤器的 name，区分大小写。
+过滤器 name 不要包含特殊字符，最好用英文小写+下划线。
+如果 context 中设置了 search_default_xxx，但搜索视图中没有对应的 <filter name="xxx">，前端不会报错，只是没有效果。
+动态 context 也可以通过 Python 方法返回 action 时传递
+需要注意的是，这个如果不想要了，最好将其留着设定为空值如{}，否则需要重启服务器才会回到不需要筛选的样子

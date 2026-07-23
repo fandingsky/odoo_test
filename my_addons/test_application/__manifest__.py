@@ -5,7 +5,7 @@
     'description':"测试模块的详细描述",
     'author':'silvertune',
     'category':'',
-    'depends':['base','product','account'],
+    'depends':['base','product','account','mail'],
     'data':[
         'security/ir.model.access.csv',
         'views/l_sale_order_views.xml',

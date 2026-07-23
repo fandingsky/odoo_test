@@ -4,7 +4,13 @@ from odoo import api,models,fields
 class LSaleOrderLine(models.Model):
     _name = "l.sale.order.line"
     _description = "销售订单行"
-    _order = "product_id desc "
+    # 对订单编号添加排序功能
+    # _order = "product_id desc "
+
+    # 增加一个排序字段，比如让订单行可以手动拖拽排序
+    # sequence是持久化的字段，sequence的值越小，排序越靠前
+    # 如果想要临时更改排序把sequence删除即可
+    _order = "sequence desc , product_id desc "
 
     _check_price_unit_positive = models.Constraint(
         "CHECK(price_unit >= 0)",
@@ -39,6 +45,8 @@ class LSaleOrderLine(models.Model):
     tax_ids = fields.Many2many('account.tax', 'l_sale_order_line_account_tax_rel',
                                'l_sale_order_line','account_tax_id'
                                ,string="税项")
+    sequence = fields.Integer(string="排序")
+
     def button_add(self):
         """
         来操作tax_ids字段，添加一个字段
@@ -124,4 +132,5 @@ class LSaleOrderLine(models.Model):
 
     @api.depends('price_unit','qty')
     def compute_total(self):
-        self.amount_total=self.price_unit * self.qty
+        for line in self:
+            line.amount_total = line.price_unit * line.qty

@@ -30,6 +30,8 @@ class LSaleOrder(models.Model):
     note = fields.Html(string="备注",help="这是我的备注")
     state =fields.Selection([('draft','草稿'),('confirm','已确认'),('done','已完成')],string="状态",help="这是我的状态",default='draft')
     barcode = fields.Char(string="订单条码")
+    # 应付税额
+    line_count = fields.Integer(string='行数', compute='_compute_line_count')
 
     # 加了api.depends装饰器后，只有当note字段发生变化时，
     # 触发_compute_name方法的执行，从而提高了性能。
@@ -70,6 +72,11 @@ class LSaleOrder(models.Model):
             # 这里是默认的跳转，跳转到订单列表
             return self.env['ir.actions.act_window']._for_xml_id('test_application.l_sale_order_act_window')
 
+    def action_view_order_lines(self):
+        self.ensure_one()
+        action = self.env.ref('test_application.l_sale_order_line_act_window').read()[0]
+        action['domain'] = [('order_id', '=', self.id)]
+        return action
 
     # 通过按钮对state进行修改
     def state_to_confirm(self):
@@ -89,3 +96,7 @@ class LSaleOrder(models.Model):
         # 返回订单列表视图，避免留在已删除的页面
         return self.go_back()
 
+    @api.depends('line_ids')
+    def _compute_line_count(self):
+        for order in self:
+            order.line_count = len(order.line_ids)

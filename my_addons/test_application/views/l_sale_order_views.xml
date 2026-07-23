@@ -14,6 +14,10 @@
                     <button name="delete_order" string="删除" type="object" confirm="确定要删除该订单吗"/>
                     <field name="state" widget="statusbar"/>
 <!--                    statubar默认在flex布局的最右边-->
+                    <button name="action_view_order_lines"
+                        string="订单行" icon="fa-list" type="object">
+                    <field name="line_count" widget="statinfo" string="行数"/>
+                    </button>
                 </header>
                 <sheet>
                         <h1>
@@ -21,7 +25,9 @@
                         </h1>
                     <group>
                         <group>
-                            <field name="partner_id"/>
+<!--                            partner_id 也是一个 Many2one，可以加上 options 阻止在订单界面直接创建客户-->
+<!--                            options="{'no_create': True, 'no_open': True}-->
+                            <field name="partner_id" widget="res_partner_many2one" options="{'no_create': True, 'no_open': True}"/>
                             <field name="state"/>
                             <field name="barcode"/>
                         </group>
@@ -40,7 +46,12 @@
 <!--                                使提交表单在当前notebook之中而不是新开一个form表单-->
 <!--                                如果是bottom那么每次都添加在最底下，如果是top那就是每次添加在最顶上-->
 <!--                                create="False"那么就不可创建，反之可以，delete同理-->
+<!--                                default_order="qty"即为默认排序-->
+<!--                                <list editable="bottom" create="true" delete="true" default_order="qty">-->
                                 <list editable="bottom" create="true" delete="true">
+                                    <!--                                    添加手柄排序-->
+                                    <field name="sequence" widget="handle"/>
+
                                     <field name="name" column_invisible="1"/>
                                     <field name="product_id"/>
                                     <field name="qty"/>
@@ -54,13 +65,13 @@
 <!--                                    <button name="button_delete" type="object" string="删除数据库已有的many2many"/>-->
 <!--                                    <button name="button_unlink" type="object" string="删除与这个表关联的many2many"/>-->
 <!--                                    <button name="button_unlinkall" type="object" string="删除与这个表关联的many2many"/>-->
+
                                 </list>
                                 <form>
                                     <group>
                                         <group>
                                             <field name="name"/>
                                             <field name="product_id"/>
-                                            <field name="qty"/>
                                         </group>
                                         <group>
                                             <field name="qty"/>
@@ -88,7 +99,11 @@
         <field name="model">l.sale.order</field>
         <field name="arch" type="xml">
             <list>
-                <field name="name"/>
+<!--                decoration-info是装饰属性-->
+                <field name="name"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'confirm'"
+                       decoration-muted="state == 'done'"/>
                 <field name="partner_id"/>
                 <field name="validate_date"/>
                 <field name="payment_type"/>
@@ -117,10 +132,33 @@
     </record>
 
 
+    <record id="l_sale_order_line_act_window" model="ir.actions.act_window">
+        <field name="name">订单行</field>
+        <field name="res_model">l.sale.order.line</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <record id="l_sale_order_act_window" model="ir.actions.act_window">
         <field name="name">我的测试单据</field>
         <field name="res_model">l.sale.order</field>
         <field name="view_mode">list,form</field>
+<!--        这里是加载页面的时候默认搜索栏筛选出草稿阶段的-->
+        <field name="context">{}</field>
+    </record>
+
+    <record id="l_sale_order_line_list_view" model="ir.ui.view">
+        <field name="name">l.sale.order.line.list</field>
+        <field name="model">l.sale.order.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="qty"/>
+                <field name="price_unit"/>
+                <field name="amount_total"/>
+            </list>
+
+        </field>
     </record>
 
     <record id="l_odoo_url_action" model="ir.actions.act_url">
@@ -128,7 +166,6 @@
         <field name="url">https://www.odoo.com</field>
         <field name="target">new</field>
     </record>
-
 
 
 </odoo>
