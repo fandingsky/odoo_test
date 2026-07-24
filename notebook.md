@@ -15,7 +15,18 @@
 
 继承的样式：
 
-    1.经典继承，类继承
+1.经典继承，类继承
+
+    _inherit = ['l.sale.order','l.test.abstract']
+需要注意的是这里是创建一个模型的时候此时 l.sale.order 是首次被定义的模型，
+在 Odoo 的注册表（registry）中还不存在，Odoo 就找不到要继承的模型，于是抛出错误。
+
+如果是已经定义过的表的话那么如下即可
+
+    _inherit = ['l.test.abstract']
+
+经典继承样式：
+
     class InheritedModel(models.Model):
         _inherit = 'parent.model'
 
@@ -29,7 +40,13 @@
             # 新方法逻辑
             return result
 
-    2.扩展继承(混合继承)
+2.扩展继承(混合继承)
+值得注意的是，如果是像下面这样的那么我们再_init_里面需要注意顺序
+如果 model1.py 在 model2.py 之前被导入，
+那么执行到 _inherit = ['model2'] 时，
+Odoo 会去注册表中查找 model1，但此时它还未被注册，
+因此抛出“继承自不存在的模型”错误。
+
     class ExtendeModel(models.Model):
         _name = 'new.model'
         _inherit=['model1','model2','model3']
@@ -37,6 +54,34 @@
         #继承多个模型的特性
 
         new_field = fields.Char(string='Combined Field')
+
+为什么必须新建文件，而不是直接修改 Odoo 源码？
+    保护核心代码：升级 Odoo 时不会被覆盖。
+    模块化：可独立安装/卸载，不影响标准功能。
+    可维护性：每个模型单独一个文件，结构清晰。
+    
+视图继承如下：（7.24）
+
+    <odoo>
+        <record id="view_partner_notebook_form_inherit" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.sale.order</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="销售订单" name="l_sale_order_page">
+                        <field name="l_sale_order_ids"/>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </odoo>
+    
+
+
+
+
+
 
 # 模型的约束与数据校验
 1.模型约束：
@@ -55,7 +100,7 @@
             if self.search[domain,limit=1]:
                 raise ValidationError('订单条码不能重复')
 
-    -------------------------------------------------------------------------
+-------------------------------------------------------------------------
 
 下面的这个也可以做到，models.Constraint比传统的 _sql_constraints 更易读，且支持多条件组合
 

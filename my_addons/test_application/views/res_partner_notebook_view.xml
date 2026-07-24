@@ -1,0 +1,14 @@
+<odoo>
+    <record id="view_partner_notebook_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.sale.order</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="销售订单" name="l_sale_order_page">
+                    <field name="l_sale_order_ids"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

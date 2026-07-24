@@ -5,6 +5,13 @@ from odoo.exceptions import ValidationError
 class LSaleOrder(models.Model):
     _name ="l.sale.order"
     _description = "销售订单"
+    # 这里是创建一个模型的时候此时 l.sale.order 是首次被定义的模型，
+    # 在 Odoo 的注册表（registry）中还不存在，Odoo 就找不到要继承的模型，于是抛出错误。
+    # _inherit = ['l.sale.order','l.test.abstract']
+
+    # 对于已经定义过的模型应该
+    _inherit = ['l.test.abstract']
+
     # _order是排序功能，以name为基准
     _order = "id desc"
 
@@ -27,22 +34,25 @@ class LSaleOrder(models.Model):
     line_ids = fields.One2many('l.sale.order.line','order_id',string="订单明细",help="这是我的订单明细")
     # many2one和one2many是相互关联的，one2many是many2one的反向关系
     # 必须对应
-    note = fields.Html(string="备注",help="这是我的备注")
+    # note = fields.Html(string="备注",help="这是我的备注")
+    note = fields.Char(string="备注",help="这是我的备注")
     state =fields.Selection([('draft','草稿'),('confirm','已确认'),('done','已完成')],string="状态",help="这是我的状态",default='draft')
+    # barcode = fields.Char(string="订单条码", required=True)
     barcode = fields.Char(string="订单条码")
     # 应付税额
     line_count = fields.Integer(string='行数', compute='_compute_line_count')
 
+
     # 加了api.depends装饰器后，只有当note字段发生变化时，
     # 触发_compute_name方法的执行，从而提高了性能。
-    # @api.depends('note')
-    # def _compute_name(self):
-    #     print(self)
-    #     for record in self:
-    #         if record.note:
-    #             record.name = f"{record.note}/{record.id}"
-    #         else:
-    #             record.name = "未确认"
+    @api.depends('note')
+    def _compute_name(self):
+        print(self)
+        for record in self:
+            if record.note:
+                record.name = f"{record.note}/{record.id}"
+            else:
+                record.name = "未确认"
 
     @api.constrains('barcode')
     def constraint_barcode(self):
@@ -51,6 +61,11 @@ class LSaleOrder(models.Model):
             if self.search(domain, limit=1):
                 raise ValidationError('订单条码不能重复')
 
+    # @api.constrains('barcode')
+    # def _check_barcode_not_empty(self):
+    #     for order in self:
+    #         if not order.barcode:
+    #             raise ValidationError("订单条码不能为空")
 
 
     # 回到上一页的办法，不知为何act_window_close无法使用
@@ -100,3 +115,18 @@ class LSaleOrder(models.Model):
     def _compute_line_count(self):
         for order in self:
             order.line_count = len(order.line_ids)
+
+
+    @api.ondelete(at_uninstall=False)
+    def _check_can_delete(self):
+        for order in self:
+            if order.state != 'draft':
+                raise ValidationError("只能删除草稿或者已经取消的订单")
+
+    @api.model
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for order in records:
+            if not order.barcode:
+                order.barcode = f"SO{order.id:06d}"
+        return records

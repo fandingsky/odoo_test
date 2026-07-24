@@ -10,7 +10,8 @@
         'security/ir.model.access.csv',
         'views/l_sale_order_views.xml',
         'views/menu_views.xml',
-        'wizard/l_sale_order_wizard.xml'
+        'views/res_partner_notebook_view.xml',
+        'wizard/l_sale_order_wizard.xml',
     ],
     'installable':True,
     'application':True,

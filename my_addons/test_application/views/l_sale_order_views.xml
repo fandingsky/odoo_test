@@ -13,11 +13,13 @@
                     <button name="state_to_done" string="完成" type="object"/>
                     <button name="delete_order" string="删除" type="object" confirm="确定要删除该订单吗"/>
                     <field name="state" widget="statusbar"/>
+                    <field name="approve_state" widget="statusbar"/>
 <!--                    statubar默认在flex布局的最右边-->
                     <button name="action_view_order_lines"
                         string="订单行" icon="fa-list" type="object">
                     <field name="line_count" widget="statinfo" string="行数"/>
                     </button>
+<!--                    <button name="create_order_line" string="新增明细行" type="object"/>-->
                 </header>
                 <sheet>
                         <h1>
@@ -34,6 +36,7 @@
                         <group>
                             <field name="validate_date"/>
                             <field name="payment_type"/>
+                            <field name="approve_state"/>
                         </group>
                     </group>
 
