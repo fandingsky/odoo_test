@@ -211,3 +211,142 @@ search_default_ 后面必须完全匹配过滤器的 name，区分大小写。
 如果 context 中设置了 search_default_xxx，但搜索视图中没有对应的 <filter name="xxx">，前端不会报错，只是没有效果。
 动态 context 也可以通过 Python 方法返回 action 时传递
 需要注意的是，这个如果不想要了，最好将其留着设定为空值如{}，否则需要重启服务器才会回到不需要筛选的样子
+
+# 向导：
+技术定义：继承自 models.TransientModel 的模型就是向导。它和普通模型（models.Model）很像，有字段、视图、方法。
+
+关键区别——数据是临时的：向导记录会保存在数据库的特殊表里，但系统会定期自动清理过期的向导记录（默认保留时间很短），因此它只适合临时存放用户交互过程中的输入，不能用来长期保存业务数据。
+
+1.向导的调用
+    
+    from odoo import models, fields
+
+    class LSaleOrderWizard(models.TransientModel):
+        _name = "l.sale.order.wizard"
+        _description = "销售订单向导"         # 建议加上 _description
+
+        name = fields.Char(string="输入内容")
+        order_id = fields.Many2one('l.sale.order', string="关联订单")
+
+        def action_confirm(self):
+            """点击确认按钮触发的方法"""
+            self.ensure_one()
+            if self.order_id:
+                # 业务逻辑：把向导输入的内容写入订单备注
+                self.order_id.note = self.name
+            # 关闭向导窗口（注意拼写）
+            return {'type': 'ir.actions.act_window_close'}
+
+2.向导的传参：
+    
+    def action_open_wizard(self):
+        self.ensure_one()
+
+        # 通过 XML ID 获取已定义的动作，返回一个字典
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            'test_application.action_l_sale_order_wizard'
+        )
+
+        # 动态注入上下文，把当前订单 ID 传给向导
+        action['context'] = {'default_order_id': self.id}
+        return action
+
+结构：
+
+    test_application/
+    ├── __init__.py
+    ├── __manifest__.py
+    ├── models/
+    │   ├── __init__.py
+    │   ├── l_sale_order.py
+    │   ├── l_sale_order_line.py
+    │   ├── l_test_abstract.py
+    │   └── ...
+    ├── views/
+    │   ├── l_sale_order_views.xml
+    │   ├── menu_views.xml
+    │   └── ...
+    ├── wizard/
+    │   ├── __init__.py
+    │   ├── l_sale_order_wizard.py      # 向导模型
+    │   └── l_sale_order_wizard.xml     # 向导视图
+    └── security/
+        └── ir.model.access.csv
+
+
+# 模块连接：
+1.通过创建“链接模块”，在两个独立的应用之间建立交互，而不破坏各自的独立性。
+
+背景：
+
+原有模块 test_application 负责销售订单管理。
+希望当订单完成（状态变为 done）时，自动在会计（account）模块中生成一张客户发票。
+
+导入依赖
+
+    from odoo import api, models, fields, Command
+    from odoo.exceptions import ValidationError
+
+models：用于定义模型类。
+fields：虽然本文件没有直接定义字段，但导入以备不时之需（可省略）。
+Command：这是核心，用来构建 One2many 字段的创建命令。
+ValidationError：用于在无法创建发票时给出清晰的错误提示。
+
+
+继承原有模型
+当用户在界面上点击“完成”按钮时，state_to_done 会被调用。
+super().state_to_done() 首先调用原模块中的 state_to_done 方法，确保状态被正确修改为 'done'。
+
+
+
+    class LSaleOrder(models.Model):
+        _inherit = "l.sale.order"
+
+重写 state_to_done 方法
+
+            for order in self:
+            if not order.partner_id:
+                raise ValidationError("无法创建发票：订单 %s 没有指定客户" % order.name)
+
+            line_commands=[]
+            for line in order.line_ids:
+                if line.price_unit * line.qty <=0:
+                    continue
+                line_commands.append(Command.create({
+                    'name':line.product_id.display_name or line.name or '订单行',
+                    'quantity':line.qty,
+                    'price_unit':line.price_unit,
+                }))
+        <------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        order.line_ids 是销售订单的明细行（One2many 字段），遍历每一行，跳过金额 <=0 的行，
+        Command.create({...}) 生成一条“创建新记录”的命令。这个命令会告诉 Odoo：“当创建发票时，请在 invoice_line_ids 字段中创建一条新的发票行记录，字段值如下”。
+        
+        字段映射：
+            name：发票行的描述，优先取产品名，其次取订单行名称，都没有则填“订单行”。
+            quantity：数量，直接使用订单行的 qty。
+            price_unit：单价，直接使用订单行的 price_unit。
+            注意：发票行会自动根据 quantity * price_unit 计算总金额，所以不需要提供 amount_total。
+        <------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        
+            if not line_commands:
+                line_commands.append(Command.create({
+                    'name':'订单行',
+                    'quantity':1,
+                    'price_unit':0,
+                }))
+        <------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        如果所有行都被跳过了（例如全是0元行），至少创建一行占位，避免发票为空。实务中你可能希望直接不创建发票，这里只是示例。
+
+
+            invoice_vals = {
+                'partner_id':order.partner_id.id,
+                'move_type':'out_invoice',
+                'invoice_line_ids':line_commands,
+            }
+            invoice = self.env['account.move'].create(invoice_vals)
+        partner_id：客户，必须用记录的 ID 或直接传记录集（这里用了 .id 保证清晰）。
+        move_type：'out_invoice' 代表客户发票。
+        invoice_line_ids：这里是 One2many 字段，直接赋予 Command.create 的命令列表，Odoo 会在创建发票的同时创建这些发票行，并自动将它们关联到该发票。
+        self.env['account.move'] 获取 account.move 模型的实例，调用 create 方法在数据库中创建记录。
+            
+

@@ -20,6 +20,7 @@
                     <field name="line_count" widget="statinfo" string="行数"/>
                     </button>
 <!--                    <button name="create_order_line" string="新增明细行" type="object"/>-->
+                    <button name="action_open_wizard" string="通过向导改备注" type="object"/>
                 </header>
                 <sheet>
                         <h1>
@@ -170,5 +171,11 @@
         <field name="target">new</field>
     </record>
 
+    <record id="action_l_sale_order_wizard" model="ir.actions.act_window">
+        <field name="name">测试向导</field>
+        <field name="res_model">l.sale.order.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
 
 </odoo>

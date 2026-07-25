@@ -13,4 +13,10 @@
               action="l_odoo_url_action"
               />
 
+    <menuitem id="menu_l_sale_order_wizard"
+          name="打开向导"
+          parent="l_sale_order_menu_root"
+          action="action_l_sale_order_wizard"
+          sequence="10"/>
+
 </odoo>

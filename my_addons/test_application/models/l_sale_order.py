@@ -130,3 +130,13 @@ class LSaleOrder(models.Model):
             if not order.barcode:
                 order.barcode = f"SO{order.id:06d}"
         return records
+
+    def action_open_wizard(self):
+        self.ensure_one()
+        # 注意这里是 action = self.env[...] 而不是 action.env[...]
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            'test_application.action_l_sale_order_wizard'
+        )
+        action['context'] = {'default_order_id': self.id}
+        print("打开向导，传入的 order_id：", self.id)
+        return action
