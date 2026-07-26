@@ -7,6 +7,7 @@ from . import l_test_abstract
 from . import l_sale_order
 from . import l_sale_order_line
 from . import product_template
+from . import res_partner
 
 
 # 当 Odoo 加载模块时，它会按照 __init__.py 中的导入顺序加载 Python 文件。

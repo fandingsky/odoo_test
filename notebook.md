@@ -18,8 +18,8 @@
 1.经典继承，类继承
 
     _inherit = ['l.sale.order','l.test.abstract']
-需要注意的是这里是创建一个模型的时候此时 l.sale.order 是首次被定义的模型，
-在 Odoo 的注册表（registry）中还不存在，Odoo 就找不到要继承的模型，于是抛出错误。
+需要注意的是这里是创建一个模型的时候此时 l.sale.order 是首次被定义的模型，  
+在 Odoo 的注册表（registry）中还不存在，Odoo 就找不到要继承的模型，于是抛出错误。  
 
 如果是已经定义过的表的话那么如下即可
 
@@ -40,12 +40,12 @@
             # 新方法逻辑
             return result
 
-2.扩展继承(混合继承)
-值得注意的是，如果是像下面这样的那么我们再_init_里面需要注意顺序
-如果 model1.py 在 model2.py 之前被导入，
-那么执行到 _inherit = ['model2'] 时，
-Odoo 会去注册表中查找 model1，但此时它还未被注册，
-因此抛出“继承自不存在的模型”错误。
+2.扩展继承(混合继承)  
+值得注意的是，如果是像下面这样的那么我们再_init_里面需要注意顺序  
+如果 model1.py 在 model2.py 之前被导入，  
+那么执行到 _inherit = ['model2'] 时，  
+Odoo 会去注册表中查找 model1，但此时它还未被注册，  
+因此抛出“继承自不存在的模型”错误。  
 
     class ExtendeModel(models.Model):
         _name = 'new.model'
@@ -55,10 +55,10 @@ Odoo 会去注册表中查找 model1，但此时它还未被注册，
 
         new_field = fields.Char(string='Combined Field')
 
-为什么必须新建文件，而不是直接修改 Odoo 源码？
-    保护核心代码：升级 Odoo 时不会被覆盖。
-    模块化：可独立安装/卸载，不影响标准功能。
-    可维护性：每个模型单独一个文件，结构清晰。
+为什么必须新建文件，而不是直接修改 Odoo 源码？  
+    保护核心代码：升级 Odoo 时不会被覆盖。  
+    模块化：可独立安装/卸载，不影响标准功能。  
+    可维护性：每个模型单独一个文件，结构清晰。  
     
 视图继承如下：（7.24）
 
@@ -146,9 +146,9 @@ Odoo 会去注册表中查找 model1，但此时它还未被注册，
             # 这里是默认的跳转，跳转到订单列表
             return self.env['ir.actions.act_window']._for_xml_id('test_application.l_sale_order_act_window')
 
-逻辑上是获取上一个动作，然后跳转到上一个动作实现之前的操作
+逻辑上是获取上一个动作，然后跳转到上一个动作实现之前的操作  
 
-不知道为什么actions_window_close无法使用,然后
+不知道为什么actions_window_close无法使用,然后   
 
     return {
          'type': 'ir.actions.act_window',
@@ -158,41 +158,41 @@ Odoo 会去注册表中查找 model1，但此时它还未被注册，
          'target': 'main',
      }
 
-强制跳转到主页面也无法使用，打开开发者测试之后在其中开发模块中，明明能搜到这个模块
+强制跳转到主页面也无法使用，打开开发者测试之后在其中开发模块中，明明能搜到这个模块  
 
 # 小部件(widget)
-1.many2many_tax_tags
-    many2many_tax_tags: many2many_tax_tags小部件用于many2many字段
-        它的作用是把一个多对多字段的显示方式从默认的表格列表，变成标签（tag）样式，
-        类似于你常见的“税项标签”，用户可以直接在输入框里添加或删除标签，操作更直观。
+1.many2many_tax_tags  
+    many2many_tax_tags: many2many_tax_tags小部件用于many2many字段  
+        它的作用是把一个多对多字段的显示方式从默认的表格列表，变成标签（tag）样式，  
+        类似于你常见的“税项标签”，用户可以直接在输入框里添加或删除标签，操作更直观。  
 
     <field name="tax_ids" widget="many2many_tax_tags"/>
 
-2.widget="res_partner_many2one"
-    res_partner_many2one: res_partner_many2one小部件用于many2one字段
+2.widget="res_partner_many2one"  
+    res_partner_many2one: res_partner_many2one小部件用于many2one字段  
 
     widget="res_partner_many2one"
-额外提供了一个“卡片预览”功能：当你在输入框里选中一个客户，或者把鼠标悬停在已选客户上时，会弹出一张小卡片，上面显示客户的关键信息（名称、地址、电话、邮箱等），不需要点进表单就能快速查看。
+额外提供了一个“卡片预览”功能：当你在输入框里选中一个客户，或者把鼠标悬停在已选客户上时，会弹出一张小卡片，上面显示客户的关键信息（名称、地址、电话、邮箱等），不需要点进表单就能快速查看。  
 
 3.default_order=""
 
     default_order="product_id desc"
 
-写在视图的默认排序
+写在视图的默认排序  
 
 4.widget="handle"
     
     <field name="sequence" widget="handle"/>
-如果你拖拽了某一行，数据库中的 sequence 值会被更新，但需要注意的是这个是持久性的，即在关闭窗口后，sequence 值会保存在数据库中。因此，如果你希望在关闭窗口后，sequence 值被重置，你需要在关闭窗口时手动将 sequence 值重置为 0。
+如果你拖拽了某一行，数据库中的 sequence 值会被更新，但需要注意的是这个是持久性的，即在关闭窗口后，sequence 值会保存在数据库中。因此，如果你希望在关闭窗口后，sequence 值被重置，你需要在关闭窗口时手动将 sequence 值重置为 0。  
 
-5.decoration-{$name}
-    decoration-{$name} 是一种特殊样式，用于在字段上添加颜色装饰。
-    在 <tree> 或 <list> 视图内的 <field> 元素上添加：
+5.decoration-{$name}  
+    decoration-{$name} 是一种特殊样式，用于在字段上添加颜色装饰。  
+    在 <tree> 或 <list> 视图内的 <field> 元素上添加：  
 
     <field name="field_name" decoration-样式名="条件表达式"/>
 
-样式名 可选：info（蓝色）、success（绿色）、warning（橙色）、danger（红色）、muted（灰色+淡化）、bf（加粗）、it（斜体）等。可叠加多个，如 decoration-success decoration-bf。
-条件表达式：任意 Python 布尔表达式，可使用视图内出现的字段名。返回 True 时应用样式。
+样式名 可选：info（蓝色）、success（绿色）、warning（橙色）、danger（红色）、muted（灰色+淡化）、bf（加粗）、it（斜体）等。可叠加多个，如 decoration-success decoration-bf。  
+条件表达式：任意 Python 布尔表达式，可使用视图内出现的字段名。返回 True 时应用样式。  
 
 实例：
 
@@ -201,20 +201,20 @@ Odoo 会去注册表中查找 model1，但此时它还未被注册，
        decoration-success="state == 'confirm'"
        decoration-muted="state == 'done'"/>
 
-6.{'search_default_draft': 1}
+6.{'search_default_draft': 1}  
     
     {'search_default_draft': 1}
 
-这里 search_default_draft 对应你搜索视图里 <filter name="draft" ...> 的 name
-search_default_ 后面必须完全匹配过滤器的 name，区分大小写。
-过滤器 name 不要包含特殊字符，最好用英文小写+下划线。
-如果 context 中设置了 search_default_xxx，但搜索视图中没有对应的 <filter name="xxx">，前端不会报错，只是没有效果。
-动态 context 也可以通过 Python 方法返回 action 时传递
-需要注意的是，这个如果不想要了，最好将其留着设定为空值如{}，否则需要重启服务器才会回到不需要筛选的样子
+这里 search_default_draft 对应你搜索视图里 <filter name="draft" ...> 的 name  
+search_default_ 后面必须完全匹配过滤器的 name，区分大小写。  
+过滤器 name 不要包含特殊字符，最好用英文小写+下划线。  
+如果 context 中设置了 search_default_xxx，但搜索视图中没有对应的 <filter name="xxx">，前端不会报错，只是没有效果。  
+动态 context 也可以通过 Python 方法返回 action 时传递  
+需要注意的是，这个如果不想要了，最好将其留着设定为空值如{}，否则需要重启服务器才会回到不需要筛选的样子  
 
-# 向导：
+# 向导：  
 技术定义：继承自 models.TransientModel 的模型就是向导。它和普通模型（models.Model）很像，有字段、视图、方法。
-
+  
 关键区别——数据是临时的：向导记录会保存在数据库的特殊表里，但系统会定期自动清理过期的向导记录（默认保留时间很短），因此它只适合临时存放用户交互过程中的输入，不能用来长期保存业务数据。
 
 1.向导的调用
@@ -275,26 +275,26 @@ search_default_ 后面必须完全匹配过滤器的 name，区分大小写。
 
 
 # 模块连接：
-1.通过创建“链接模块”，在两个独立的应用之间建立交互，而不破坏各自的独立性。
+1.通过创建“链接模块”，在两个独立的应用之间建立交互，而不破坏各自的独立性。  
 
-背景：
+背景：  
 
-原有模块 test_application 负责销售订单管理。
-希望当订单完成（状态变为 done）时，自动在会计（account）模块中生成一张客户发票。
+原有模块 test_application 负责销售订单管理。  
+希望当订单完成（状态变为 done）时，自动在会计（account）模块中生成一张客户发票。  
 
-导入依赖
+导入依赖  
 
     from odoo import api, models, fields, Command
     from odoo.exceptions import ValidationError
 
-models：用于定义模型类。
-fields：虽然本文件没有直接定义字段，但导入以备不时之需（可省略）。
-Command：这是核心，用来构建 One2many 字段的创建命令。
-ValidationError：用于在无法创建发票时给出清晰的错误提示。
+models：用于定义模型类。  
+fields：虽然本文件没有直接定义字段，但导入以备不时之需（可省略）。  
+Command：这是核心，用来构建 One2many 字段的创建命令。  
+ValidationError：用于在无法创建发票时给出清晰的错误提示。  
 
 
-继承原有模型
-当用户在界面上点击“完成”按钮时，state_to_done 会被调用。
+继承原有模型  
+当用户在界面上点击“完成”按钮时，state_to_done 会被调用。  
 super().state_to_done() 首先调用原模块中的 state_to_done 方法，确保状态被正确修改为 'done'。
 
 
@@ -349,4 +349,73 @@ super().state_to_done() 首先调用原模块中的 state_to_done 方法，确�
         invoice_line_ids：这里是 One2many 字段，直接赋予 Command.create 的命令列表，Odoo 会在创建发票的同时创建这些发票行，并自动将它们关联到该发票。
         self.env['account.move'] 获取 account.move 模型的实例，调用 create 方法在数据库中创建记录。
             
+
+# 看板(kanban):
+
+为什么需要 QWeb？  
+文档开篇说，之前的列表和表单视图“设计上没什么可做的”，因为标准视图只是按规则摆放字段。但当你想做这些事时，就需要一个更灵活的工具：  
+制作卡片式布局（看板视图）  
+生成PDF 报表  
+开发网站页面  
+这个工具就是 QWeb 模板引擎。它和 Jinja2、Twig 类似，但基于 XML 语法，专门在 Odoo 里生成 HTML。
+
+    <kanban>
+        <templates>
+            <t t-name="card">
+                <div>
+                    <field name="name"/>
+                </div>
+            </t>
+        </templates>
+    </kanban>
+
+<kanban>：视图类型为看板。  
+<templates>：里面可以定义多个 QWeb 模板，看板必须有一个叫 card 的根模板。  
+<t t-name="card">：<t> 是 QWeb 指令的占位符，t-name 给这个模板起名为 card。每条记录都会用这个模板渲染出一张卡片。  
+<field name="name"/>：在卡片里显示字段 name。
+
+条件显示：t-if 和 record:
+
+    <kanban>
+        <field name="state"/>
+        <templates>
+            <t t-name="card">
+                <div>
+                    <field name="name"/>
+                    <div t-if="record.state.raw_value == 'new'">
+                        This is new!
+                    </div>
+                </div>
+            </t>
+        </templates>
+    </kanban>
+
+需要注意到的是
+    record.state.raw_value 是字段 state 的原始值，即 'new'。  
+field name="state"写在 templates外面：    
+当我们需要用到字段值但不直接显示时，就把字段声明在这里（只加载数据，不渲染 HTML）。这样在模板里就能通过 record 访问它了  
+record 对象：每条记录对应的 QWeb 变量。它有：  
+    record.field_name.value：根据用户语言/格式处理过的值，适合直接展示。  
+    record.field_name.raw_value：数据库原始值（read() 方法拿到的值），适合做逻辑判断  
+t-if="条件"：当条件为真时，该元素及其内容才渲染。  
+
+默认分组与拖拽控制：  
+
+    <kanban default_group_by="state" 
+            class="o_kanban_small_column"
+            quick_create="false"
+            on_delete="cascade">
+        <!-- quick_create 禁用快速创建 -->
+        <!-- on_delete="cascade" 是默认，也可以不写 -->
+        ...
+    </kanban>
+
+禁止拖拽是通过删除或设置 records_draggable 为 false但在 QWeb 看板里通常通过 CSS 或去掉拖拽句柄实现。  
+最简单的办法是添加属性 kanban_draggable="false" 吗？  
+实际上标准 Odoo 没有直接属性，但可以通过 <kanban class="o_kanban_no_drag"> 配合自定义 CSS，或者干脆不引入 kanban_draggable 相关的类。  
+在 Odoo 14+ 中，可以在 <kanban> 上添加 groups_draggable="false" 和 records_draggable="false"。例如：
+    
+        <kanban default_group_by="state" 
+            records_draggable="false"
+            groups_draggable="false">
 
